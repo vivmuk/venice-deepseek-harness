@@ -1,0 +1,15 @@
+{
+  "name": "venice-deepseek-harness",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Thin deployment wrapper for DeepSeek Harness (@deepseek-ai/dsh) preconfigured with Venice as its model provider.",
+  "scripts": {
+    "start": "sh scripts/start.sh"
+  },
+  "dependencies": {
+    "@deepseek-ai/dsh": "latest"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}
