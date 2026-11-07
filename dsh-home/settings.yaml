@@ -1,0 +1,14 @@
+llm-pi-ai:
+  providers:
+    venice:
+      apiKeyEnv: VENICE_API_KEY
+      api: openai-completions
+      baseURL: https://api.venice.ai/api/v1
+      compat:
+        thinkingFormat: deepseek
+      models:
+        - id: deepseek-v4-1-flash
+        - id: deepseek-v4-pro
+        - id: deepseek-v4-flash
+        - id: deepseek-v3.2
+        - id: deepseek-v4-1-flash-uncensored
