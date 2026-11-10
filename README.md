@@ -37,11 +37,12 @@ This repository includes a [`Dockerfile`](./Dockerfile) (Node 22 base image with
 
 1. Push or fork this repository to your GitHub account.
 2. In Railway, click **New Project → Deploy from GitHub repo** and select this repository.
-3. (Optional but recommended) Open the service's **Variables** tab and add:
-   - `VENICE_API_KEY`: Your API key from [venice.ai/settings/api](https://venice.ai/settings/api)
-   - Railway automatically injects `PORT`, which `npm start` binds to on `0.0.0.0`.
+3. Open the service's **Variables** tab and add:
+   - `VENICE_API_KEY`: your API key from [venice.ai/settings/api](https://venice.ai/settings/api)
+   - `HARNESS_ACCESS_KEY`: a shared secret of your choosing. Without it the deployment is open to anyone who finds the URL.
+   - Railway automatically injects `PORT`; the entrypoint binds to it on `0.0.0.0`.
 4. Under **Settings → Networking**, click **Generate Domain** to expose the Web UI publicly.
-5. Open your Railway domain URL. If you did not set `VENICE_API_KEY` in step 3, configure it directly inside **Settings → Models** in the Web UI.
+5. Open `https://<your-domain>/?key=<HARNESS_ACCESS_KEY>` once. The gatekeeper mints an access cookie and drops you straight into the harness.
 
 ---
 
@@ -54,17 +55,24 @@ npm install
 # 2. (Optional) Copy .env.example and set VENICE_API_KEY
 cp .env.example .env
 
-# 3. Start the DeepSeek Harness Web UI (it prints its URL, including a one-time access token)
-npm start
+# 3. Start the DeepSeek Harness Web UI
+PORT=3080 HARNESS_ACCESS_KEY=devkey npm start
+# then open http://localhost:3080/?key=devkey
 ```
 
-## Opening the UI (access token)
+## How the public entry works
 
-`dsh web` gates the UI behind a one-time token: on startup it prints a URL like
-`http://<host>:3080/?token=...`. Open that exact URL — opening the bare
-address without the token returns 401. On Railway, find the token URL in the
-service's deploy logs. The token is stored as a browser-session grant in
-`dsh-home/.credentials.yaml` (gitignored, never committed).
+`dsh web` prints a URL carrying a **fresh random launch token on every process start**, and that URL is the only way in: a bare request gets `401 dsh web authentication required`. Behind a PaaS nobody can read that printed line, and the token changes on every restart.
+
+[`scripts/gatekeeper.mjs`](./scripts/gatekeeper.mjs) solves that. It starts `dsh web` on an internal loopback port, scrapes the current launch token out of the startup output, and proxies the public port to it — redeeming the token for each visitor so the plain domain works. It also:
+
+- forwards `Host`, cookies and WebSocket upgrades untouched (dsh's browser-trust fence requires the browser-visible authority),
+- re-redeems the token after every restart, and clears a session cookie left over from a previous process,
+- optionally gates the deployment behind `HARNESS_ACCESS_KEY` (keyed link or a small form, then an HttpOnly cookie),
+- serves `/healthz` for the platform healthcheck, independent of dsh's token state.
+
+The harness home (`$DSH_HOME`, default `./dsh-home`) holds settings, sessions and credentials. On a platform with an ephemeral filesystem, mount a volume there if you want sessions to survive deploys.
+
 
 ---
 

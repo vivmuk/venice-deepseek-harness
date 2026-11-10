@@ -4,12 +4,12 @@
   "private": true,
   "description": "Thin deployment wrapper for DeepSeek Harness (@deepseek-ai/dsh) preconfigured with Venice as its model provider.",
   "scripts": {
-    "start": "sh scripts/start.sh"
+    "start": "node scripts/gatekeeper.mjs"
   },
   "dependencies": {
     "@deepseek-ai/dsh": "latest"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.9.0"
   }
 }
