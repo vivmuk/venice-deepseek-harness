@@ -8,7 +8,7 @@ Instead of reimplementing the agent harness, this repository wires up `@deepseek
 
 ## Preconfigured Venice Models
 
-The included [`dsh-home/settings.yaml`](./dsh-home/settings.yaml) configures the `llm-pi-ai` plugin with the `venice` provider (`https://api.venice.ai/api/v1`, OpenAI-compatible completions with `thinkingFormat: deepseek`) and registers five DeepSeek models:
+The included [`dsh-home/profiles/web/cordis.patch.yml`](./dsh-home/profiles/web/cordis.patch.yml) configures the `llm-pi-ai` plugin with the `venice` provider (`https://api.venice.ai/api/v1`, OpenAI-compatible completions with `thinkingFormat: deepseek`) and registers five DeepSeek models. The web profile scaffold (`cordis.yml`, `package.json`, `pnpm-workspace.yaml`) ships alongside it so a fresh container has the provider on its very first boot — dsh only imports a legacy `settings.yaml` into this patch layer after it starts.
 
 | Model ID | Description |
 | :--- | :--- |

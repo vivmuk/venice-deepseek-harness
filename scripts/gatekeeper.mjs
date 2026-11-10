@@ -31,6 +31,9 @@ import { fileURLToPath } from 'node:url';
 
 const PUBLIC_PORT = Number(process.env.PORT || 3080);
 const INTERNAL_PORT = Number(process.env.DSH_INTERNAL_PORT || 3081);
+const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// The preloaded settings.yaml (Venice provider + models) lives in ./dsh-home.
+const DSH_HOME = process.env.DSH_HOME || path.join(APP_ROOT, 'dsh-home');
 const ACCESS_KEY = process.env.HARNESS_ACCESS_KEY || '';
 const ACCESS_COOKIE = 'harness-access';
 const MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
@@ -54,9 +57,13 @@ for (const host of (process.env.DSH_TRUSTED_HOSTS || '').split(',').map((h) => h
 }
 
 console.log(`[gatekeeper] public :${PUBLIC_PORT} -> dsh :${INTERNAL_PORT}${PUBLIC_URL ? ` (${PUBLIC_URL})` : ''}`);
+console.log(`[gatekeeper] DSH_HOME=${DSH_HOME}`);
 console.log(`[gatekeeper] access key ${ACCESS_KEY ? 'required' : 'not set'}`);
 
-const child = spawn(dshCommand(), args, { stdio: ['ignore', 'pipe', 'pipe'], env: process.env });
+const child = spawn(dshCommand(), args, {
+  stdio: ['ignore', 'pipe', 'pipe'],
+  env: { ...process.env, DSH_HOME },
+});
 
 function dshCommand() {
   if (process.env.DSH_BIN) return process.env.DSH_BIN;

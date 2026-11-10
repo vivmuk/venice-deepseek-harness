@@ -1,0 +1,19 @@
+# dsh profile patch layer, applied after every bundle layer.
+# Ships the Venice provider so a fresh container has models on first boot
+# (dsh only imports a legacy settings.yaml into this file after it starts).
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      venice:
+        apiKeyEnv: VENICE_API_KEY
+        api: openai-completions
+        baseURL: https://api.venice.ai/api/v1
+        compat:
+          thinkingFormat: deepseek
+        models:
+          - id: deepseek-v4-1-flash
+          - id: deepseek-v4-pro
+          - id: deepseek-v4-flash
+          - id: deepseek-v3.2
+          - id: deepseek-v4-1-flash-uncensored
